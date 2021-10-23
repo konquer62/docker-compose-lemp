@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+
+  mariadb:
+    image: mariadb:10.6
+    container_name: mariadb-10.6
+    ports:
+      - "3306:3306"
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      MARIADB_DATABASE: $MARIADB_DATABASE
+      MARIADB_USER: $MARIADB_USER
+      MARIADB_PASSWORD: $MARIADB_PASSWORD
+      MARIADB_ROOT_PASSWORD: $MARIADB_ROOT_PASSWORD
+    volumes:
+      - ./database:/var/lib/mysql
+      - ./logs/mariadb:/var/log/mysql
+
+  php-fpm: 
+    user: "www-data:www-data"
+    build: images/php/
+    depends_on:
+      - mariadb
+    container_name: php-fpm-7.4.24
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./app:/var/www/html
+
+  nginx:
+    image: nginx:1.21.3-alpine
+    depends_on:
+      - php-fpm
+    container_name: nginx-1.21.3-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./app:/var/www/html
+      - ./configs/nginx:/etc/nginx/conf.d
+      - ./logs/nginx:/var/log/nginx
+
