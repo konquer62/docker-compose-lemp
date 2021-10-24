@@ -20,16 +20,17 @@ services:
       - ./logs/mariadb:/var/log/mysql
 
   php-fpm: 
-    user: "www-data:www-data"
-    build: images/php/
+    user: "1000:1000"
+    build: images/php
     depends_on:
       - mariadb
-    container_name: php-fpm-7.4.24
+    container_name: php-fpm-5.5.33
     restart: unless-stopped
     ports:
       - "9000:9000"
     volumes:
-      - ./app:/var/www/html
+      - ./app:/var/www/novinano
+    user: "1000:1000"
 
   nginx:
     image: nginx:1.21.3-alpine
@@ -40,7 +41,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./app:/var/www/html
+      - ./app:/var/www/novinano
       - ./configs/nginx:/etc/nginx/conf.d
       - ./logs/nginx:/var/log/nginx
 
